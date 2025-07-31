@@ -1,3 +1,5 @@
+// EXERCISE 1.1 & 1.2
+
 const Header = (props) => {
   return <h1>{props.course}</h1>;
 };
