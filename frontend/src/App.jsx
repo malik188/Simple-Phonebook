@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import Person from "./components/Person";
-import axios from "axios";
 import personService from "./service/persons";
 import "./index.css";
 
@@ -54,8 +53,9 @@ const App = () => {
   const [message, setMessage] = useState(null); // Stores notification messages
 
   useEffect(() => {
-    axios.get("http://localhost:3001/api/persons").then((response) => {
-      setPersons(response.data);
+    personService.getAll().then((initialPersons) => {
+      // Fetches all persons from the server when the component mounts
+      setPersons(initialPersons);
     });
   }, []);
 
