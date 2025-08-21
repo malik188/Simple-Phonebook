@@ -54,8 +54,7 @@ const App = () => {
   const [message, setMessage] = useState(null); // Stores notification messages
 
   useEffect(() => {
-    // Fetches initial data from the JSON server when the component mounts
-    axios.get("http://localhost:3001/persons").then((response) => {
+    axios.get("http://localhost:3001/api/persons").then((response) => {
       setPersons(response.data);
     });
   }, []);
