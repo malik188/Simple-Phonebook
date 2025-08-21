@@ -3,6 +3,7 @@ const app = express();
 const morgan = require("morgan");
 
 app.use(express.json()); // Middleware to parse JSON bodies (required for POST requests)
+app.use(express.static("dist"));
 // app.use(morgan("tiny"));
 
 // Defining a custom token for morgan to log the request body for POST requests
@@ -103,6 +104,7 @@ app.delete("/api/persons/:id", (request, response) => {
   response.status(204).end();
 });
 
-const PORT = 3001;
-app.listen(PORT);
-console.log(`Server running on port ${PORT}`);
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
