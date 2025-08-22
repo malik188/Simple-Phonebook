@@ -1,7 +1,8 @@
 DELETE http://localhost:3001/api/persons/1
 
 ###
-POST http://localhost:3001/api/persons
+POST https://simple-phonebook-t173.onrender.com/api/persons
+Host: simple-phonebook-t173.onrender.com
 content-Type: application/json
 
 {
