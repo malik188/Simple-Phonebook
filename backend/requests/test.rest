@@ -1,4 +1,7 @@
-DELETE http://localhost:3001/api/persons/1
+DELETE http://localhost:3001/api/persons/68a9571987f97d54bc214dac
+
+###
+GET http://localhost:3001/api/persons/68a9573387f97d54bc214dae
 
 ###
 POST https://simple-phonebook-t173.onrender.com/api/persons
@@ -15,6 +18,15 @@ POST http://localhost:3001/api/persons
 content-Type: application/json
 
 {
-  "name": "Jane Smith",
-  "number": "987-654-3210"
+  "name": "Malik",
+  "number": "021-4567890"
+}
+
+###
+PUT http://localhost:3001/api/persons/68a9571987f97d54bc214dac
+content-Type: application/json  
+
+{
+  "name": "Asep",
+  "number": "1234567890"
 }

@@ -1,8 +1,10 @@
 require("dotenv").config();
 const express = require("express");
+const Person = require("./models/person");
+
 const app = express();
 const morgan = require("morgan");
-const Person = require("./models/person");
+const person = require("./models/person");
 
 app.use(express.json()); // Middleware to parse JSON bodies (required for POST requests)
 app.use(express.static("dist"));
@@ -23,44 +25,105 @@ app.get("/", (req, res) => {
   res.send("<h1>Hello World!</h1>");
 });
 
-// Endpoint to get all persons
+app.get("/api/info", (req, res) => {
+  Person.countDocuments({})
+    .then((count) => {
+      const date = new Date();
+      const info = `<p>Phonebook has info for ${count} people</p>
+                    <p>${date}</p>`;
+      res.send(info);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error retrieving person count");
+    });
+});
+
+// Endpoint to get all data
 app.get("/api/persons", (req, res) => {
   Person.find({}).then((persons) => {
     res.json(persons);
   });
 });
 
-// Endpoint to get a specific note by ID
-app.get("/api/persons/:id", (request, response) => {
-  Note.findById(request.params.id).then((person) => {
-    response.json(person);
-  });
+// Endpoint to get a specific data
+app.get("/api/persons/:id", (request, response, next) => {
+  Person.findById(request.params.id)
+    .then((person) => {
+      if (person) {
+        response.json(person);
+      } else {
+        response.status(404).end();
+      }
+    })
+    // Handle promise rejection (e.g., invalid ID format)
+    .catch((error) => next(error));
 });
 
-app.get("/api/info", (req, res) => {
-  const date = new Date();
-  const info = `<p>Phonebook has info for ${persons.length} people</p>
-                <p>${date}</p>`;
-  res.send(info);
-});
-
-// Endpoint to create a new note
-app.post("/api/persons", (request, response) => {
+// Endpoint to create a new data
+app.post("/api/persons", (request, response, next) => {
   const body = request.body;
-
   if (!body.name || !body.number) {
     return response.status(400).json({ error: "content missing" });
   }
+  // Check if name already exists, if so, update the number
+  Person.findOne({ name: body.name })
+    .then((existingPerson) => {
+      if (existingPerson) {
+        // Update the number if name exists
+        return Person.findByIdAndUpdate(
+          existingPerson._id,
+          { number: body.number },
+          { new: true }
+        );
+      } else {
+        // Create new person if name does not exist
+        const person = new Person({
+          name: body.name,
+          number: body.number,
+        });
+        return person.save();
+      }
+    })
+    .then((result) => {
+      response.json(result);
+    })
+    .catch((error) => next(error));
+});
 
-  const person = new Person({
+// Endpoint to delete a data
+app.delete("/api/persons/:id", (request, response, next) => {
+  Person.findByIdAndDelete(request.params.id)
+    .then(() => {
+      response.status(204).end();
+    })
+    .catch((error) => next(error));
+});
+
+// Endpoint to update a data
+app.put("/api/persons/:id", (request, response, next) => {
+  const body = request.body;
+  const person = {
     name: body.name,
     number: body.number,
-  });
-
-  person.save().then((savedPerson) => {
-    response.json(savedPerson);
-  });
+  };
+  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    .then((updatedPerson) => {
+      response.json(updatedPerson);
+    })
+    .catch((error) => next(error));
 });
+
+// Middleware for handling errors
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+  if (error.name === "CastError") {
+    return response.status(400).send({ error: "malformatted id" });
+  }
+  next(error);
+};
+// this has to be the last loaded middleware, also all the routes should be registered before this!
+app.use(errorHandler);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
