@@ -17,7 +17,8 @@ mongoose
 
 // Define schema to describe the structure of a Person
 const personSchema = new mongoose.Schema({
-  name: String,
+  // name three char long minimum
+  name: { type: String, minlength: 3, required: true },
   number: String,
 });
 // Format objects returned by mongoose

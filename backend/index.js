@@ -8,7 +8,6 @@ const person = require("./models/person");
 
 app.use(express.json()); // Middleware to parse JSON bodies (required for POST requests)
 app.use(express.static("dist"));
-// app.use(morgan("tiny"));
 
 // Defining a custom token for morgan to log the request body for POST requests
 morgan.token("body", (req) => {
@@ -117,8 +116,11 @@ app.put("/api/persons/:id", (request, response, next) => {
 // Middleware for handling errors
 const errorHandler = (error, request, response, next) => {
   console.error(error.message);
+
   if (error.name === "CastError") {
     return response.status(400).send({ error: "malformatted id" });
+  } else if (error.name === "ValidationError") {
+    return response.status(400).json({ error: error.message });
   }
   next(error);
 };
