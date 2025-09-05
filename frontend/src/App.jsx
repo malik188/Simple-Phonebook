@@ -101,6 +101,10 @@ const App = () => {
             setTimeout(() => {
               setMessage(null);
             }, 3000);
+          })
+          .catch((error) => {
+            console.error(error.response.data.error);
+            alert(error.response.data.error);
           });
   };
 

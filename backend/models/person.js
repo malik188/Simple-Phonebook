@@ -17,9 +17,20 @@ mongoose
 
 // Define schema to describe the structure of a Person
 const personSchema = new mongoose.Schema({
-  // name three char long minimum
   name: { type: String, minlength: 3, required: true },
-  number: String,
+  number: {
+    type: String,
+    minlength: 8,
+    required: true,
+    validate: {
+      validator: function (v) {
+        // Matches 2 or 3 digits, dash, then any number of digits
+        return /^\d{2,3}-\d+$/.test(v);
+      },
+      message: (props) =>
+        `${props.value} is not a valid phone number! Format: XX-XXXX... or XXX-XXXX...`,
+    },
+  },
 });
 // Format objects returned by mongoose
 personSchema.set("toJSON", {
